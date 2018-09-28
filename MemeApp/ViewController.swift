@@ -10,7 +10,25 @@ import UIKit
 
 class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 
+    @IBOutlet weak var imagePickerView: UIImageView!
+    @IBOutlet weak var cameraButton: UIBarButtonItem!
+    @IBOutlet weak var topTextField: UITextField!
+    @IBOutlet weak var bottomTextField: UITextField!
 
+    
+    // Delegate
+    let memeTextFieldDelegate = MemeTextFieldDelegate()
+    
+
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        
+        
+        // Do any additional setup after loading the view, typically from a nib.
+    }
+    
     
     
 }
