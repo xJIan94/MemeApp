@@ -9,13 +9,16 @@
 import UIKit
 
 class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-
+    
     @IBOutlet weak var imagePickerView: UIImageView!
     @IBOutlet weak var cameraButton: UIBarButtonItem!
     @IBOutlet weak var topTextField: UITextField!
     @IBOutlet weak var bottomTextField: UITextField!
     @IBOutlet weak var shareButton: UIBarButtonItem!
     
+    
+    @IBOutlet weak var navBar: UINavigationBar!
+    @IBOutlet weak var toolBar: UIToolbar!
     
     // Delegate
     let memeTextFieldDelegate = MemeTextFieldDelegate()
@@ -56,7 +59,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         unsubscribeFromKeyboardNotifications()
     }
     
-
+    
     // keyboard Notification
     func subscribeToKeyboardNotification() {
         //NotificationCenter.default.removeObserver(self, name: .UIKeyboardWillHide , object: nil)
@@ -106,7 +109,71 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         shareButton.isEnabled = true
     }
     
-
+    @IBAction func shareMemeImage(_ sender: Any) {
+        let memedImage = generateMemedImage()
+        let controller = UIActivityViewController(activityItems: [memedImage], applicationActivities: nil)
+        self.present(controller, animated: true, completion: nil)
+        controller.completionWithItemsHandler =  {
+            (activity, success, items, error) in
+            if(success && error == nil){
+                //Do Work
+                self.saveMemeImage()
+                
+                
+            }
+            else if (error != nil){
+                //log the error
+                print(error!)
+            }
+        };
+        
+    }
+    
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        dismiss(animated: true, completion: nil)
+        shareButton.isEnabled = false
+    }
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
+        if let image = info[UIImagePickerControllerOriginalImage] as? UIImage {
+            imagePickerView.autoresizingMask = [.flexibleWidth, .flexibleHeight, .flexibleBottomMargin, .flexibleRightMargin, .flexibleLeftMargin, .flexibleTopMargin]
+            imagePickerView.contentMode = .scaleAspectFit // OR .scaleAspectFill scaleAspectFit
+            imagePickerView.clipsToBounds = true
+            imagePickerView.image = image
+            dismiss(animated: true, completion: nil)
+            
+        }
+    }
+    
+    func generateMemedImage() -> UIImage {
+        
+        // TODO: Hide toolbar and navbar
+        self.toolBar.isHidden = true
+        self.navBar.isHidden = true
+        
+        // Render the view of an Image
+        UIGraphicsBeginImageContext(self.view.frame.size)
+        view.drawHierarchy(in: self.view.frame, afterScreenUpdates: true)
+        let memedImage:UIImage = UIGraphicsGetImageFromCurrentImageContext()!
+        UIGraphicsEndImageContext()
+        
+        // TODO: Show toolbar and navbar
+        self.toolBar.isHidden = false
+        self.navBar.isHidden = false
+        
+        
+        return memedImage
+    }
+    
+    
+    func saveMemeImage(){
+        let memedImage = generateMemedImage()
+        let meme = Meme(topText: topTextField.text!, bottomText: bottomTextField.text!, oriImage: imagePickerView.image!, memeImage: memedImage)
+        
+        let alert = UIAlertController(title: "Your Meme Has Been Saved", message: nil, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        self.present(alert, animated: true)
+    }
     
     
 }
